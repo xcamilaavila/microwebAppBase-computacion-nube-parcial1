@@ -1,0 +1,136 @@
+services:
+
+  users_db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${USERS_DB_NAME}
+    volumes:
+      - ./microUsers/init-users.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - users_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  products_db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${PRODUCTS_DB_NAME}
+    volumes:
+      - ./microProducts/init-products.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - products_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  orders_db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${ORDERS_DB_NAME}
+    volumes:
+      - ./microOrders/init-orders.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - orders_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+
+  microusers:
+    build: ./microUsers
+    depends_on:
+      users_db:
+        condition: service_healthy
+      consul:
+        condition: service_started
+    ports:
+      - "5002:5002"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  microproducts:
+    build: ./microProducts
+    depends_on:
+      products_db:
+        condition: service_healthy
+      consul:
+        condition: service_started
+    ports:
+      - "5003:5003"
+    
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5003/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - microusers
+      - microproducts
+      - microorders
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  microorders:
+    build: ./microOrders
+    depends_on:
+      orders_db:
+        condition: service_healthy
+      microproducts:
+        condition: service_started
+      consul:
+        condition: service_started
+    ports:
+      - "5004:5004"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      PYTHONUNBUFFERED: 1
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5004/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  consul:
+    image: consul:1.15
+    ports:
+      - "8500:8500"
+    command: "agent -dev -client=0.0.0.0 -ui"
+
+volumes:
+  users_db_data:
+  products_db_data:
+  orders_db_data:
+

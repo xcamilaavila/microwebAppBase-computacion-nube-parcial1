@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/">Store Management</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+               <a class="nav-link" id="nav-login" href="/login">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/products">Product Management</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/users">User Management</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/orders">Order Management</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container" style="padding-top:70px;">
+    <h2>Orders List</h2>
+    <table id="order-list" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <button type="button" onclick="getOrders()">Refrescar Órdenes</button>
+
+    <hr style="margin-top:30px;">
+    <h2>Ver detalle por ID de orden</h2>
+    <div class="form-group" style="max-width:300px;">
+        <label for="order-detail-id">ID de la orden</label>
+        <input type="number" class="form-control" id="order-detail-id" required>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="showOrderDetailById()">Ver Detalle</button>
+    <div id="order-detail-result" style="margin-top:15px; padding:15px; background:#f8f9fa; border-radius:5px; white-space:pre-wrap;"></div>
+</div>
+<script src="/static/config.js"></script>
+<script src="/static/scriptOrders.js"></script>
+<script src="/static/session.js"></script>
+<script>
+    updateNavbar();
+    getOrders();
+</script>
+</body>
+</html>
