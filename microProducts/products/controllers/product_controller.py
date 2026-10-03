@@ -5,6 +5,7 @@ from db.db import db
 product_controller = Blueprint('product_controller', __name__)
 
 
+@product_controller.route('/api/products', methods=['GET'])
 @product_controller.route('/api/productos', methods=['GET'])
 def get_products():
     print("listado de productos")
@@ -20,6 +21,7 @@ def get_products():
     ]
     return jsonify(result)
 
+@product_controller.route('/api/products/<int:product_id>', methods=['GET'])
 @product_controller.route('/api/productos/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     print("obteniendo producto")
@@ -34,6 +36,7 @@ def get_product(product_id):
         'stock': p.stock
     })
 
+@product_controller.route('/api/products', methods=['POST'])
 @product_controller.route('/api/productos', methods=['POST'])
 def create_product():
     print("creando producto")
@@ -52,6 +55,7 @@ def create_product():
     db.session.commit()
     return jsonify({'message': 'Producto creado correctamente'}), 201
 
+@product_controller.route('/api/products/<int:product_id>', methods=['PUT'])
 @product_controller.route('/api/productos/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     print("actualizando producto")
@@ -65,6 +69,7 @@ def update_product(product_id):
     return jsonify({'message': 'Producto actualizado correctamente'})
 
 
+@product_controller.route('/api/products/<int:product_id>', methods=['DELETE'])
 @product_controller.route('/api/productos/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     p = Products.query.get_or_404(product_id)
