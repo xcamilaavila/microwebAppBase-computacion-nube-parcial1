@@ -15,7 +15,7 @@ app.register_blueprint(order_controller)
 CORS(app, supports_credentials=True)
 
 SERVICE_NAME = 'microorders'
-SERVICE_PORT = 5004
+SERVICE_PORT = int(os.environ.get('PORT', 5004))
 CONSUL_URL = os.environ.get('CONSUL_URL', 'http://consul:8500')
 
 
@@ -59,4 +59,4 @@ register_service()
 atexit.register(deregister_service)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5004)
+    app.run(host='0.0.0.0', port=SERVICE_PORT)

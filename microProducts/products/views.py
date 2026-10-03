@@ -14,7 +14,7 @@ db.init_app(app)
 app.register_blueprint(product_controller)
 
 SERVICE_NAME = 'microproducts'
-SERVICE_PORT = 5003
+SERVICE_PORT = int(os.environ.get('PORT', 5003))
 CONSUL_URL = os.environ.get('CONSUL_URL', 'http://consul:8500')
 
 
@@ -58,4 +58,4 @@ register_service()
 atexit.register(deregister_service)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003)
+    app.run(host='0.0.0.0', port=SERVICE_PORT)
