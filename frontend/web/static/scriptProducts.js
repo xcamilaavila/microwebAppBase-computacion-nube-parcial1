@@ -51,6 +51,12 @@ function searchProductById() {
     var productId = document.getElementById('search-product-id').value;
     var resultEl = document.getElementById('search-result');
 
+    if (productId === '' || parseInt(productId) < 0) {
+        resultEl.style.color = 'red';
+        resultEl.textContent = 'Ingresa un ID de producto válido (número mayor o igual a 0)';
+        return;
+    }
+
     fetch(`${PRODUCTS_API}/api/productos/${productId}`)
         .then(response => {
             return response.json().then(body => ({ status: response.status, body }));

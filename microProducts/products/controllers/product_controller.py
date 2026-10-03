@@ -20,11 +20,12 @@ def get_products():
     ]
     return jsonify(result)
 
-
 @product_controller.route('/api/productos/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     print("obteniendo producto")
-    p = Products.query.get_or_404(product_id)
+    p = Products.query.get(product_id)
+    if p is None:
+        return jsonify({'message': f'Producto {product_id} no existe'}), 404
     return jsonify({
         'id': p.id,
         'nombre': p.nombre,
@@ -32,7 +33,6 @@ def get_product(product_id):
         'precio': p.precio,
         'stock': p.stock
     })
-
 
 @product_controller.route('/api/productos', methods=['POST'])
 def create_product():
